@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨墨音乐日志</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --surface-hover: #242424;
+    --border: #2a2a2a;
+    --text: #e0e0e0;
+    --text-muted: #888;
+    --accent: #e8b44f;
+    --accent-dim: #c49a3c;
+    --danger: #d94a4a;
+    --radius: 10px;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 80px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .vinyl {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #1a1a1a 0deg, #2a2a2a 90deg, #1a1a1a 180deg, #333 270deg, #1a1a1a 360deg);
+    flex-shrink: 0;
+    position: relative;
+    animation: spin 8s linear infinite paused;
+  }
+  .app.searching .vinyl { animation-play-state: running; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .vinyl::after {
+    content: '';
+    position: absolute;
+    inset: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .vinyl::before {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    z-index: 1;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .header .badge {
+    font-size: 11px;
+    color: var(--accent);
+    background: #2a2218;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-left: auto;
+    border: 1px solid #3a3020;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 8px;
+  }
+  .input-group input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: var(--accent); }
+  .input-group input::placeholder { color: #555; }
+  .btn {
+    background: var(--accent);
+    color: #111;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent-dim); }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Source tabs */
+  .source-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .source-tab {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.2s;
+  }
+  .source-tab.active {
+    background: #2a2218;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .status {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 0;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .status.active { display: flex; }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  .results-info {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 0 2px;
+  }
+
+  .playlist {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .playlist-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: #1e1e1e;
+    flex-wrap: wrap;
+  }
+  .playlist-header .date {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+  .playlist-header .prompt-tag {
+    font-size: 13px;
+    color: var(--accent);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .playlist-header .save-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 14px;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+  .save-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .save-btn.saved { border-color: var(--accent-dim); color: var(--accent-dim); }
+
+  .track-list { list-style: none; }
+  .track {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    border-bottom: 1px solid #1f1f1f;
+    transition: background 0.15s;
+  }
+  .track:last-child { border-bottom: none; }
+  .track:hover { background: #1e1e1e; }
+  .track-num {
+    width: 24px;
+    text-align: right;
+    font-size: 11px;
+    color: #555;
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+  .track-cover {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #222;
+  }
+  .track-info { flex: 1; min-width: 0; }
+  .track-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .track-artist {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .track-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .track-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font);
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .track-btn:hover { border-color: #666; color: var(--text); }
+
+  .section-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: -12px;
+  }
+
+  .past-list { display: flex; flex-direction: column; gap: 6px; }
+  .past-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .past-item:hover { background: var(--surface-hover); }
+  .past-date { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); flex-shrink: 0; }
+  .past-prompt { font-size: 13px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .past-count { font-size: 11px; color: #555; }
+  .past-del {
+    background: none; border: none; color: #444; cursor: pointer;
+    font-size: 12px; padding: 2px 6px; border-radius: 4px;
+  }
+  .past-del:hover { color: var(--danger); }
+
+  .empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: #444;
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.4; }
+  .empty p { font-size: 13px; line-height: 1.6; }
+  .empty .hint {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: center; margin-top: 12px;
+  }
+  .hint-tag {
+    font-size: 11px; padding: 4px 10px;
+    border-radius: 12px; border: 1px solid #333;
+    color: #666; cursor: pointer; background: transparent;
+    font-family: var(--font);
+    transition: all 0.2s;
+  }
+  .hint-tag:hover { border-color: #666; color: #aaa; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2a2a2a;
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    border: 1px solid #444;
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 600px) {
+    .input-group { flex-direction: column; }
+    .track-actions { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="header">
+    <div class="vinyl"></div>
+    <h1>墨墨音乐日志</h1>
+    <span class="badge" id="totalBadge"></span>
+  </div>
+
+  <div class="input-group">
+    <input
+      id="promptInput"
+      type="text"
+      placeholder="深夜开车的电子 / 90年代粤语 / 下雨天的爵士…"
+      autocomplete="off"
+    />
+    <button class="btn" id="searchBtn" onclick="doSearch()">🔍 搜歌</button>
+  </div>
+
+  <div class="source-tabs">
+    <button class="source-tab active" onclick="switchSource('apple')">🍎 Apple Music</button>
+    <button class="source-tab" onclick="switchSource('spotify')">🟢 Spotify</button>
+  </div>
+
+  <div class="status" id="status">
+    <div class="spinner"></div>
+    <span id="statusText">搜索中…</span>
+  </div>
+
+  <div class="results-info" id="resultsInfo"></div>
+
+  <div id="currentPlaylist"></div>
+  <div class="section-title" id="historyTitle" style="display:none">📋 已保存</div>
+  <div class="past-list" id="pastList"></div>
+
+  <div class="empty" id="emptyState">
+    <div class="empty-icon">💿</div>
+    <p>描述你想听的音乐<br>我帮你从 Apple Music / Spotify 搜真实歌曲</p>
+    <div class="hint" id="hintTags"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'momo_playlists_v2';
+let currentSource = 'apple';
+let currentResults = [];
+let currentPrompt = '';
+
+const HINT_TAGS = [
+  '深夜开车', '下雨天爵士', '90年代粤语', '后摇推荐',
+  '跑步燃曲', '安静钢琴', '复古蒸汽波', '英伦摇滚',
+  '治愈民谣', 'emo朋克', '电子氛围', '国产独立'
+];
+
+function loadPlaylists() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function savePlaylists(pls) { localStorage.setItem(STORAGE_KEY, JSON.stringify(pls)); }
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function switchSource(src) {
+  currentSource = src;
+  document.querySelectorAll('.source-tab').forEach(t => t.classList.toggle('active', t.textContent.includes(src === 'apple' ? 'Apple' : 'Spotify')));
+}
+
+function render() {
+  const playlists = loadPlaylists();
+  const total = playlists.reduce((s,p) => s + p.tracks.length, 0);
+  document.getElementById('totalBadge').textContent = playlists.length
+    ? `${playlists.length}张 · ${total}首` : '';
+
+  const empty = document.getElementById('emptyState');
+  const historyTitle = document.getElementById('historyTitle');
+  const pastList = document.getElementById('pastList');
+
+  if (playlists.length === 0) {
+    empty.style.display = 'block';
+    historyTitle.style.display = 'none';
+    pastList.innerHTML = '';
+    renderHintTags();
+    return;
+  }
+  empty.style.display = 'none';
+  historyTitle.style.display = 'block';
+
+  const latest = playlists[playlists.length - 1];
+  if (!document.getElementById('currentPlaylist').innerHTML) {
+    showPlaylist(latest, 'currentPlaylist');
+  }
+
+  pastList.innerHTML = playlists.slice(0, -1).reverse().map((p, i) => {
+    const idx = playlists.length - 2 - i;
+    return `<div class="past-item" onclick="showPlaylist(loadPlaylists()[${idx}],'currentPlaylist')">
+      <span class="past-date">${fmtDate(p.createdAt)}</span>
+      <span class="past-prompt">${esc(p.prompt)}</span>
+      <span class="past-count">${p.tracks.length}首</span>
+      <button class="past-del" onclick="event.stopPropagation();del(${idx})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderHintTags() {
+  document.getElementById('hintTags').innerHTML = HINT_TAGS.map(t =>
+    `<button class="hint-tag" onclick="document.getElementById('promptInput').value='${t}';doSearch()">${t}</button>`
+  ).join('');
+}
+
+function showPlaylist(pl, containerId) {
+  currentResults = pl.tracks;
+  currentPrompt = pl.prompt;
+  const div = document.getElementById(containerId);
+  const saved = loadPlaylists().some(p => p.createdAt === pl.createdAt);
+
+  div.innerHTML = `<div class="playlist">
+    <div class="playlist-header">
+      <span class="date">${fmtDate(pl.createdAt)}</span>
+      <span class="prompt-tag">「${esc(pl.prompt)}」</span>
+      <button class="save-btn ${saved?'saved':''}" onclick="saveCurrent()">
+        ${saved ? '✓ 已保存' : '+ 保存'}
+      </button>
+      ${!saved ? '' : `<button class="save-btn" onclick="delSaved('${pl.createdAt}')">删除</button>`}
+    </div>
+    <ul class="track-list">
+      ${pl.tracks.map((t,i) => `
+        <li class="track">
+          <span class="track-num">${String(i+1).padStart(2,'0')}</span>
+          ${t.artwork ? `<img class="track-cover" src="${esc(t.artwork)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+          <div class="track-info">
+            <div class="track-name">${esc(t.name)}</div>
+            <div class="track-artist">${esc(t.artist)}${t.album ? ' · ' + esc(t.album) : ''}</div>
+          </div>
+          <div class="track-actions">
+            ${t.preview ? `<button class="track-btn" onclick="playPreview('${esc(t.preview)}')">▶ 试听</button>` : ''}
+            ${t.url ? `<button class="track-btn" onclick="window.open('${esc(t.url)}')">打开</button>` : ''}
+          </div>
+        </li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+function saveCurrent() {
+  if (currentResults.length === 0) return;
+  const playlists = loadPlaylists();
+  const pl = { prompt: currentPrompt, tracks: currentResults, createdAt: Date.now() };
+  playlists.push(pl);
+  savePlaylists(playlists);
+  render();
+  showPlaylist(pl, 'currentPlaylist');
+  toast('已保存 ✓');
+}
+
+function del(idx) {
+  const pls = loadPlaylists();
+  if (confirm(`删除「${pls[idx].prompt}」？`)) {
+    pls.splice(idx, 1);
+    savePlaylists(pls);
+    document.getElementById('currentPlaylist').innerHTML = '';
+    render();
+    toast('已删除');
+  }
+}
+
+function delSaved(ts) {
+  const pls = loadPlaylists();
+  const idx = pls.findIndex(p => p.createdAt === parseInt(ts));
+  if (idx >= 0) { del(idx); }
+}
+
+async function doSearch() {
+  const input = document.getElementById('promptInput');
+  const prompt = input.value.trim();
+  if (!prompt) { toast('输入你想听的音乐类型'); return; }
+
+  const btn = document.getElementById('searchBtn');
+  const status = document.getElementById('status');
+  const statusText = document.getElementById('statusText');
+  const info = document.getElementById('resultsInfo');
+  const app = document.getElementById('app');
+
+  btn.disabled = true;
+  status.classList.add('active');
+  app.classList.add('searching');
+  statusText.textContent = '搜索中…';
+
+  try {
+    let results = [];
+    if (currentSource === 'apple') {
+      results = await searchAppleMusic(prompt);
+      info.textContent = `Apple Music 找到 ${results.length} 首`;
+    } else {
+      results = await searchSpotify(prompt);
+      info.textContent = `Spotify 找到 ${results.length} 首`;
+    }
+
+    if (results.length === 0) {
+      results = getFallback(prompt);
+      info.textContent = '未找到精确结果，显示精选推荐';
+    }
+
+    currentResults = results;
+    currentPrompt = prompt;
+    showPlaylist({ prompt, tracks: results, createdAt: Date.now() }, 'currentPlaylist');
+    input.value = '';
+  } catch(e) {
+    toast('搜索出错：' + e.message);
+    info.textContent = '搜索失败，请重试';
+  } finally {
+    btn.disabled = false;
+    status.classList.remove('active');
+    app.classList.remove('searching');
+  }
+}
+
+async function searchAppleMusic(query) {
+  const term = encodeURIComponent(query);
+  const url = `https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=25&country=cn`;
+
+  const resp = await fetch(url);
+  const data = await resp.json();
+
+  return (data.results || []).map(r => ({
+    name: r.trackName || r.collectionName,
+    artist: r.artistName,
+    album: r.collectionName,
+    artwork: r.artworkUrl100?.replace('100x100', '300x300') || '',
+    preview: r.previewUrl || '',
+    url: r.trackViewUrl || '',
+    source: 'apple'
+  }));
+}
+
+async function searchSpotify(query) {
+  // Spotify requires auth. Use a client-credentials proxy or just show a note.
+  // For now, use the curated fallback + a search link
+  const term = encodeURIComponent(query);
+  return [{
+    name: `在 Spotify 中搜索「${query}」`,
+    artist: '点击下方按钮跳转 Spotify 搜索',
+    album: '',
+    artwork: '',
+    preview: '',
+    url: `https://open.spotify.com/search/${term}`,
+    source: 'spotify'
+  }, ...getFallback(query).slice(0, 9)];
+}
+
+function getFallback(prompt) {
+  const p = prompt.toLowerCase();
+  const results = [];
+
+  const genres = {
+    '电子': [
+      {name:'Strobe',artist:'deadmau5',album:'For Lack of a Better Name'},
+      {name:'Opus',artist:'Eric Prydz',album:'Opus'},
+      {name:'Innerbloom',artist:'RÜFÜS DU SOL',album:'Bloom'},
+      {name:'Midnight City',artist:'M83',album:'Hurry Up, We\'re Dreaming'},
+      {name:'Gooey',artist:'Glass Animals',album:'ZABA'},
+      {name:'Loud Places',artist:'Jamie xx',album:'In Colour'},
+      {name:'Harpoon',artist:'Knife Party',album:'Abandon Ship'},
+    ],
+    '摇滚': [
+      {name:'Bohemian Rhapsody',artist:'Queen',album:'A Night at the Opera'},
+      {name:'Stairway to Heaven',artist:'Led Zeppelin',album:'IV'},
+      {name:'Smells Like Teen Spirit',artist:'Nirvana',album:'Nevermind'},
+      {name:'Back in Black',artist:'AC/DC',album:'Back in Black'},
+      {name:'Dreams',artist:'Fleetwood Mac',album:'Rumours'},
+      {name:'Hotel California',artist:'Eagles',album:'Hotel California'},
+      {name:'Paint It Black',artist:'The Rolling Stones',album:'Aftermath'},
+    ],
+    '爵士': [
+      {name:'Take Five',artist:'Dave Brubeck',album:'Time Out'},
+      {name:'So What',artist:'Miles Davis',album:'Kind of Blue'},
+      {name:'My Funny Valentine',artist:'Chet Baker',album:'Chet Baker Sings'},
+      {name:'Fly Me to the Moon',artist:'Frank Sinatra',album:'It Might as Well Be Swing'},
+      {name:'Autumn Leaves',artist:'Bill Evans',album:'Portrait in Jazz'},
+      {name:'Summertime',artist:'Ella Fitzgerald & Louis Armstrong',album:'Porgy and Bess'},
+    ],
+    '粤语': [
+      {name:'富士山下',artist:'陈奕迅',album:'What\'s Going On...?'},
+      {name:'海阔天空',artist:'Beyond',album:'乐与怒'},
+      {name:'喜帖街',artist:'谢安琪',album:'Binary'},
+      {name:'可惜我是水瓶座',artist:'杨千嬅',album:'Miriam\'s Music Box'},
+      {name:'七友',artist:'梁汉文',album:'10号'},
+      {name:'爱与诚',artist:'古巨基',album:'大雄'},
+      {name:'再见二丁目',artist:'杨千嬅',album:'直觉'},
+    ],
+    '民谣': [
+      {name:'南山南',artist:'马頔',album:'孤岛'},
+      {name:'成都',artist:'赵雷',album:'无法长大'},
+      {name:'理想三旬',artist:'陈鸿宇',album:'浓烟下的诗歌电台'},
+      {name:'奇妙能力歌',artist:'陈粒',album:'如也'},
+      {name:'斑马斑马',artist:'宋冬野',album:'安和桥北'},
+      {name:'借我',artist:'谢春花',album:'算云烟'},
+    ],
+    '后摇': [
+      {name:'Your Hand in Mine',artist:'Explosions in the Sky',album:'The Earth Is Not a Cold Dead Place'},
+      {name:'Moya',artist:'Godspeed You! Black Emperor',album:'Slow Riot'},
+      {name:'Storm',artist:'Godspeed You! Black Emperor',album:'Lift Your Skinny Fists'},
+      {name:'Taijin Kyofusho',artist:'The Evpatoria Report',album:'Golevka'},
+      {name:'A Gallant Gentleman',artist:'We Lost The Sea',album:'Departure Songs'},
+    ],
+    'chill': [
+      {name:'Avril 14th',artist:'Aphex Twin',album:'Drukqs'},
+      {name:'Nuvole Bianche',artist:'Ludovico Einaudi',album:'Una Mattina'},
+      {name:'Duvet',artist:'Niklas Paschburg',album:'Oceanic'},
+      {name:'Olson',artist:'Boards of Canada',album:'Music Has the Right to Children'},
+      {name:'Breathe',artist:'Télépopmusik',album:'Genetic World'},
+    ],
+    '钢琴': [
+      {name:'River Flows in You',artist:'Yiruma',album:'First Love'},
+      {name:'Comptine d\'un autre été',artist:'Yann Tiersen',album:'Amélie'},
+      {name:'Clair de Lune',artist:'Claude Debussy',album:'Suite Bergamasque'},
+      {name:'Gymnopédie No.1',artist:'Erik Satie',album:'Gymnopédies'},
+    ],
+    '复古': [
+      {name:'Everybody Wants to Rule the World',artist:'Tears for Fears',album:'Songs from the Big Chair'},
+      {name:'Take On Me',artist:'a-ha',album:'Hunting High and Low'},
+      {name:'Sweet Dreams',artist:'Eurythmics',album:'Sweet Dreams'},
+      {name:'Blue Monday',artist:'New Order',album:'Power, Corruption & Lies'},
+    ],
+    '蒸汽波': [
+      {name:'リサフランク420 / 現代のコンピュー',artist:'Macintosh Plus',album:'Floral Shoppe'},
+      {name:'Chamakay',artist:'Blood Orange',album:'Cupid Deluxe'},
+      {name:'Resonance',artist:'HOME',album:'Odyssey'},
+    ],
+    'emo': [
+      {name:'Welcome to the Black Parade',artist:'My Chemical Romance',album:'The Black Parade'},
+      {name:'I Miss You',artist:'blink-182',album:'blink-182'},
+      {name:'Sugar, We\'re Goin Down',artist:'Fall Out Boy',album:'From Under the Cork Tree'},
+      {name:'Ohio Is for Lovers',artist:'Hawthorne Heights',album:'The Silence in Black and White'},
+    ],
+  };
+
+  const moods = {
+    '深夜': [
+      {name:'The Night We Met',artist:'Lord Huron',album:'Strange Trails'},
+      {name:'Nightcall',artist:'Kavinsky',album:'OutRun'},
+      {name:'Street Spirit (Fade Out)',artist:'Radiohead',album:'The Bends'},
+    ],
+    '开车': [
+      {name:'Nightcall',artist:'Kavinsky',album:'OutRun'},
+      {name:'Life Is a Highway',artist:'Tom Cochrane',album:'Mad Mad World'},
+      {name:'Fast Car',artist:'Tracy Chapman',album:'Tracy Chapman'},
+    ],
+    '下雨': [
+      {name:'Riders on the Storm',artist:'The Doors',album:'L.A. Woman'},
+      {name:'Paranoid Android',artist:'Radiohead',album:'OK Computer'},
+      {name:'Banana Pancakes',artist:'Jack Johnson',album:'In Between Dreams'},
+    ],
+    '跑步': [
+      {name:'Eye of the Tiger',artist:'Survivor',album:'Eye of the Tiger'},
+      {name:'Stronger',artist:'Kanye West',album:'Graduation'},
+      {name:'\'Till I Collapse',artist:'Eminem',album:'The Eminem Show'},
+    ],
+  };
+
+  for (const [key, songs] of Object.entries(genres)) {
+    if (p.includes(key.toLowerCase())) results.push(...songs);
+  }
+  for (const [key, songs] of Object.entries(moods)) {
+    if (p.includes(key.toLowerCase())) results.push(...songs);
+  }
+
+  if (results.length === 0) {
+    for (const songs of Object.values(genres)) {
+      results.push(...songs.slice(0, 2));
+      if (results.length >= 12) break;
+    }
+  }
+
+  return results;
+}
+
+function playPreview(url) {
+  const audio = new Audio(url);
+  audio.volume = 0.5;
+  audio.play().catch(() => toast('试听不可用'));
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.getElementById('promptInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+render();
+</script>
+</body>
+</html>
