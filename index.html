@@ -6,12 +6,8 @@
 <meta name="referrer" content="no-referrer">
 <title>墨墨音乐日志</title>
 <style>
-  :root {
-    --bg: #08080a;
-  }
-
+  :root { --bg: #08080a; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     background: var(--bg);
     min-height: 100vh;
@@ -22,245 +18,93 @@
     overflow: hidden;
     user-select: none;
   }
-
   .ambient {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: radial-gradient(ellipse at center, #1a1a2e20 0%, transparent 70%);
     pointer-events: none;
   }
-
-  .scene {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 36px;
-  }
-
-  /* Arrow buttons */
+  .scene { position: relative; display: flex; align-items: center; gap: 36px; }
   .arrow {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1px solid #2a2a2a;
-    background: transparent;
-    color: #555;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.4s ease;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid #2a2a2a; background: transparent;
+    color: #555; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.4s ease; flex-shrink: 0; position: relative; z-index: 10;
   }
   .arrow::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 1px solid transparent;
-    transition: all 0.4s ease;
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 1px solid transparent; transition: all 0.4s ease;
   }
-  .arrow:hover {
-    color: #ccc;
-    border-color: #555;
-  }
-  .arrow:hover::after {
-    border-color: #333;
-    inset: -8px;
-  }
-  .arrow:active {
-    transform: scale(0.92);
-    transition: transform 0.1s;
-  }
-
-  /* Center column */
-  .center-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 32px;
-  }
-
-  /* Vinyl */
-  .vinyl-wrapper {
-    position: relative;
-    width: 320px;
-    height: 320px;
-  }
-
+  .arrow:hover { color: #ccc; border-color: #555; }
+  .arrow:hover::after { border-color: #333; inset: -8px; }
+  .arrow:active { transform: scale(0.92); transition: transform 0.1s; }
+  .center-col { display: flex; flex-direction: column; align-items: center; gap: 32px; }
+  .vinyl-wrapper { position: relative; width: 320px; height: 320px; }
   .vinyl {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
+    position: absolute; inset: 0; border-radius: 50%;
     background: conic-gradient(
       from 0deg,
-      #1a1a1a 0deg 2deg, #252525 2deg 4deg, #1a1a1a 4deg 6deg,
-      #252525 6deg 8deg, #1a1a1a 8deg 10deg, #252525 10deg 12deg,
-      #1a1a1a 12deg 14deg, #252525 14deg 16deg, #1a1a1a 16deg 18deg,
-      #252525 18deg 20deg, #1a1a1a 20deg 22deg, #252525 22deg 24deg,
+      #1a1a1a 0deg 2deg, #252525 2deg 4deg, #1a1a1a 4deg 6deg, #252525 6deg 8deg,
+      #1a1a1a 8deg 10deg, #252525 10deg 12deg, #1a1a1a 12deg 14deg, #252525 14deg 16deg,
+      #1a1a1a 16deg 18deg, #252525 18deg 20deg, #1a1a1a 20deg 22deg, #252525 22deg 24deg,
       #1a1a1a 24deg 26deg, #252525 26deg 28deg, #1a1a1a 28deg 30deg
     );
     background-size: 100% 100%;
-    box-shadow:
-      0 0 60px rgba(0,0,0,0.8),
-      0 0 120px rgba(0,0,0,0.3),
-      inset 0 0 40px rgba(0,0,0,0.5);
+    box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 120px rgba(0,0,0,0.3), inset 0 0 40px rgba(0,0,0,0.5);
     animation: spin 8s linear infinite paused;
   }
   .vinyl.playing { animation-play-state: running; }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
+  @keyframes spin { to { transform: rotate(360deg); } }
   .groove {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.03);
-    pointer-events: none;
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.03); pointer-events: none;
   }
-
-  /* Cover */
   .cover {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    overflow: hidden;
-    z-index: 2;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 140px; height: 140px; border-radius: 50%; overflow: hidden; z-index: 2;
     background: #1a1a1a;
-    box-shadow:
-      0 0 0 3px #1a1a1a,
-      0 0 0 6px #111,
-      0 0 0 8px #1a1a1a,
-      0 0 30px rgba(0,0,0,0.6);
+    box-shadow: 0 0 0 3px #1a1a1a, 0 0 0 6px #111, 0 0 0 8px #1a1a1a, 0 0 30px rgba(0,0,0,0.6);
     transition: opacity 0.5s ease;
   }
-  .cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* Fallback cover — generated when image fails */
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .cover-fallback {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    font-size: 11px;
-    color: #555;
-    letter-spacing: 1px;
-    text-align: center;
-    padding: 10px;
-    line-height: 1.4;
+    width: 100%; height: 100%; display: flex; align-items: center;
+    justify-content: center; flex-direction: column;
+    font-size: 11px; color: #555; letter-spacing: 1px;
+    text-align: center; padding: 10px; line-height: 1.4;
   }
-  .cover-fallback .icon {
-    font-size: 28px;
-    margin-bottom: 6px;
-    opacity: 0.5;
-  }
-
+  .cover-fallback .icon { font-size: 28px; margin-bottom: 6px; opacity: 0.5; }
   .hole {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #08080a;
-    z-index: 3;
-    box-shadow: 0 0 0 2px #222;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #08080a; z-index: 3; box-shadow: 0 0 0 2px #222;
   }
-
   .shine {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: linear-gradient(
-      135deg,
-      rgba(255,255,255,0.04) 0%,
-      transparent 40%,
-      transparent 60%,
-      rgba(255,255,255,0.02) 100%
-    );
-    pointer-events: none;
-    z-index: 4;
+    position: absolute; inset: 0; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.02) 100%);
+    pointer-events: none; z-index: 4;
   }
-
-  /* Info */
-  .info {
-    text-align: center;
-    color: #888;
-    transition: opacity 0.4s ease;
-  }
-  .info .album-name {
-    font-size: 16px;
-    color: #ccc;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-  .info .artist-name {
-    font-size: 13px;
-    color: #666;
-  }
-  .info .label {
-    font-size: 10px;
-    color: #444;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-top: 6px;
-  }
-
-  /* Play button */
+  .info { text-align: center; color: #888; transition: opacity 0.4s ease; }
+  .info .album-name { font-size: 16px; color: #ccc; font-weight: 500; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .info .artist-name { font-size: 13px; color: #666; }
+  .info .label { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 2px; margin-top: 6px; }
   .play-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid #333;
-    background: transparent;
-    color: #666;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid #333;
+    background: transparent; color: #666; font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.3s;
   }
-  .play-btn:hover {
-    border-color: #e8b44f;
-    color: #e8b44f;
-    box-shadow: 0 0 16px rgba(232,180,79,0.12);
-  }
-
-  /* Counter */
-  .counter {
-    font-size: 10px;
-    color: #333;
-    letter-spacing: 2px;
-  }
+  .play-btn:hover { border-color: #e8b44f; color: #e8b44f; box-shadow: 0 0 16px rgba(232,180,79,0.12); }
+  .counter { font-size: 10px; color: #333; letter-spacing: 2px; }
 </style>
 </head>
 <body>
-
 <div class="ambient"></div>
-
 <div class="scene">
-  <button class="arrow" id="prevBtn" onclick="prevAlbum()" title="上一张">
+  <button class="arrow" onclick="prevAlbum()" title="上一张">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="15 18 9 12 15 6"></polyline>
     </svg>
   </button>
-
   <div class="center-col">
     <div class="vinyl-wrapper">
       <div class="vinyl playing" id="vinyl"></div>
@@ -274,193 +118,115 @@
       <div class="hole"></div>
       <div class="shine"></div>
     </div>
-
     <div class="info" id="info">
       <div class="album-name" id="albumName"></div>
       <div class="artist-name" id="artistName"></div>
       <div class="label">今日唱片</div>
     </div>
-
-    <button class="play-btn" id="playBtn" onclick="togglePlay()">
+    <button class="play-btn" onclick="togglePlay()">
       <span id="playIcon">⏸</span>
     </button>
-
     <div class="counter" id="counter"></div>
   </div>
-
-  <button class="arrow" id="nextBtn" onclick="nextAlbum()" title="下一张">
+  <button class="arrow" onclick="nextAlbum()" title="下一张">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
   </button>
 </div>
-
 <script>
-// Album data — each has a reliable cover URL + fallback colors
-const PALETTES = [
-  ['#2d1b4e', '#1a3a5c'], ['#1b3a1b', '#2d2d1b'], ['#4a1a1a', '#2d1b2d'],
-  ['#1a2d3a', '#1b2d1b'], ['#3a1a2d', '#1b1b4a'], ['#2d3a1a', '#4a2d1b'],
-  ['#1b4a4a', '#2d1a2d'], ['#3a3a1a', '#1b3a4a'], ['#4a1b3a', '#1a2d1b'],
-  ['#1b1b3a', '#3a2d1a'], ['#2d1a3a', '#1b4a2d'], ['#4a2d2d', '#2d1b1b'],
-  ['#1a3a3a', '#3a1a1a'], ['#2d2d4a', '#1a2d4a'], ['#3a4a1b', '#2d1a4a'],
-  ['#1b2d4a', '#4a1b2d'], ['#3a1b2d', '#1b3a2d'], ['#2d4a2d', '#3a1b3a'],
-  ['#4a3a1b', '#2d1b3a'], ['#1a4a3a', '#3a1b1b'], ['#2d1b4e', '#1a2d2d'],
-  ['#3a2d2d', '#1b1b3a'], ['#1b3a1b', '#4a1a3a'], ['#2d3a3a', '#3a1b4a'],
-  ['#4a1b1b', '#1b2d3a'],
-];
-
 const ALBUMS = [
-  { name:'The Dark Side of the Moon', artist:'Pink Floyd',
-    cover:'images/cover_00.jpg' },
-  { name:'Abbey Road', artist:'The Beatles',
-    cover:'images/cover_01.jpg' },
-  { name:'Nevermind', artist:'Nirvana',
-    cover:'images/cover_02.jpg' },
-  { name:'Kind of Blue', artist:'Miles Davis',
-    cover:'images/cover_03.jpg' },
-  { name:'Random Access Memories', artist:'Daft Punk',
-    cover:'images/cover_04.jpg' },
-  { name:'Rumours', artist:'Fleetwood Mac',
-    cover:'images/cover_05.jpg' },
-  { name:'OK Computer', artist:'Radiohead',
-    cover:'images/cover_06.png' },
-  { name:'Thriller', artist:'Michael Jackson',
-    cover:'images/cover_07.jpg' },
-  { name:'Unknown Pleasures', artist:'Joy Division',
-    cover:'images/cover_08.jpg' },
-  { name:'In the Court of the Crimson King', artist:'King Crimson',
-    cover:'images/cover_09.jpg' },
-  { name:'Blue Train', artist:'John Coltrane',
-    cover:'images/cover_10.jpg' },
-  { name:'A Love Supreme', artist:'John Coltrane',
-    cover:'images/cover_11.jpg' },
-  { name:'The Wall', artist:'Pink Floyd',
-    cover:'images/cover_12.jpg' },
-  { name:'(What\'s the Story) Morning Glory?', artist:'Oasis',
-    cover:'images/cover_oasis.jpg' },
-  { name:'Is This It', artist:'The Strokes',
-    cover:'images/cover_13.jpg' },
-  { name:'The Bends', artist:'Radiohead',
-    cover:'images/cover_14.jpg' },
-  { name:'Back to Black', artist:'Amy Winehouse',
-    cover:'images/cover_15.png' },
-  { name:'Led Zeppelin IV', artist:'Led Zeppelin',
-    cover:'images/cover_16.jpg' },
-  { name:'London Calling', artist:'The Clash',
-    cover:'images/cover_17.jpg' },
-  { name:'Hounds of Love', artist:'Kate Bush',
-    cover:'images/cover_18.jpg' },
-  { name:'Music Has the Right to Children', artist:'Boards of Canada',
-    cover:'images/cover_19.jpg' },
-  { name:'Loveless', artist:'My Bloody Valentine',
-    cover:'images/cover_20.jpg' },
-  { name:'Dummy', artist:'Portishead',
-    cover:'images/cover_21.jpg' },
-  { name:'Souvlaki', artist:'Slowdive',
-    cover:'images/cover_22.jpg' },
-  { name:'Selected Ambient Works 85-92', artist:'Aphex Twin',
-    cover:'images/cover_23.jpg' },
+  {name:"The Dark Side of the Moon",artist:"Pink Floyd"},
+  {name:"Abbey Road",artist:"The Beatles"},
+  {name:"Nevermind",artist:"Nirvana"},
+  {name:"Kind of Blue",artist:"Miles Davis"},
+  {name:"Random Access Memories",artist:"Daft Punk"},
+  {name:"Rumours",artist:"Fleetwood Mac"},
+  {name:"OK Computer",artist:"Radiohead"},
+  {name:"Thriller",artist:"Michael Jackson"},
+  {name:"Unknown Pleasures",artist:"Joy Division"},
+  {name:"In the Court of the Crimson King",artist:"King Crimson"},
+  {name:"Blue Train",artist:"John Coltrane"},
+  {name:"A Love Supreme",artist:"John Coltrane"},
+  {name:"The Wall",artist:"Pink Floyd"},
+  {name:"(What's the Story) Morning Glory?",artist:"Oasis"},
+  {name:"Is This It",artist:"The Strokes"},
+  {name:"The Bends",artist:"Radiohead"},
+  {name:"Back to Black",artist:"Amy Winehouse"},
+  {name:"Led Zeppelin IV",artist:"Led Zeppelin"},
+  {name:"London Calling",artist:"The Clash"},
+  {name:"Hounds of Love",artist:"Kate Bush"},
+  {name:"Music Has the Right to Children",artist:"Boards of Canada"},
+  {name:"Loveless",artist:"My Bloody Valentine"},
+  {name:"Dummy",artist:"Portishead"},
+  {name:"Souvlaki",artist:"Slowdive"},
+  {name:"Selected Ambient Works 85-92",artist:"Aphex Twin"},
 ];
 
-let currentIdx = 0;
-let isPlaying = true;
+const PALETTES = [
+  ["#2d1b4e","#1a3a5c"],["#1b3a1b","#2d2d1b"],["#4a1a1a","#2d1b2d"],
+  ["#1a2d3a","#1b2d1b"],["#3a1a2d","#1b1b4a"],["#2d3a1a","#4a2d1b"],
+  ["#1b4a4a","#2d1a2d"],["#3a3a1a","#1b3a4a"],["#4a1b3a","#1a2d1b"],
+  ["#1b1b3a","#3a2d1a"],["#2d1a3a","#1b4a2d"],["#4a2d2d","#2d1b1b"],
+  ["#1a3a3a","#3a1a1a"],["#2d2d4a","#1a2d4a"],["#3a4a1b","#2d1a4a"],
+  ["#1b2d4a","#4a1b2d"],["#3a1b2d","#1b3a2d"],["#2d4a2d","#3a1b3a"],
+  ["#4a3a1b","#2d1b3a"],["#1a4a3a","#3a1b1b"],["#2d1b4e","#1a2d2d"],
+  ["#3a2d2d","#1b1b3a"],["#1b3a1b","#4a1a3a"],["#2d3a3a","#3a1b4a"],
+  ["#4a1b1b","#1b2d3a"],
+];
 
-function showAlbum(idx, direction) {
-  if (idx < 0) idx = ALBUMS.length - 1;
-  if (idx >= ALBUMS.length) idx = 0;
-  currentIdx = idx;
-  const album = ALBUMS[idx];
-  const palette = PALETTES[idx % PALETTES.length];
+let currentIdx = 0, isPlaying = true;
 
-  const info = document.getElementById('info');
-  const img = document.getElementById('coverImg');
-  const fallback = document.getElementById('coverFallback');
-  const fallbackText = document.getElementById('fallbackText');
-  const counter = document.getElementById('counter');
-
-  // Fade info
-  info.style.opacity = '0';
-
-  // Set up cover
-  let loaded = false;
-  img.style.display = 'none';
-  fallback.style.display = 'none';
-
-  // Show fallback immediately
-  fallback.style.background = `linear-gradient(135deg, ${palette[0]}, ${palette[1]})`;
-  fallbackText.textContent = album.name.split(' ').slice(0, 3).join('\n');
-  fallback.style.display = 'flex';
-
-  // Try loading the image
-  const testImg = new Image();
-  testImg.onload = function() {
-    if (loaded) return;
-    loaded = true;
-    img.src = album.cover;
-    img.style.display = 'block';
-    fallback.style.display = 'none';
-  };
-  testImg.onerror = function() {
-    // Fallback stays visible — that's fine
-  };
-  testImg.src = album.cover;
-
-  // Update text
-  setTimeout(() => {
-    document.getElementById('albumName').textContent = album.name;
-    document.getElementById('artistName').textContent = album.artist;
-    document.getElementById('counter').textContent = `${currentIdx + 1} / ${ALBUMS.length}`;
-    info.style.opacity = '1';
-  }, 350);
-
-  // Animate vinyl on switch
-  const vinyl = document.getElementById('vinyl');
-  vinyl.style.transition = 'none';
-  vinyl.style.transform = 'rotate(0deg)';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      vinyl.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-      vinyl.style.transform = 'rotate(360deg)';
-      setTimeout(() => {
-        vinyl.style.transition = 'none';
-        vinyl.style.transform = 'rotate(0deg)';
-      }, 800);
-    });
-  });
+function showAlbum(idx) {
+  if (idx<0) idx=ALBUMS.length-1;
+  if (idx>=ALBUMS.length) idx=0;
+  currentIdx=idx;
+  const a=ALBUMS[idx], p=PALETTES[idx%PALETTES.length];
+  const img=document.getElementById("coverImg"),
+        fb=document.getElementById("coverFallback"),
+        ft=document.getElementById("fallbackText");
+  
+  document.getElementById("info").style.opacity="0";
+  img.style.display="none"; fb.style.display="none";
+  fb.style.background=`linear-gradient(135deg,${p[0]},${p[1]})`;
+  ft.textContent=a.name.split(" ").slice(0,3).join("\n");
+  fb.style.display="flex";
+  
+  const test=new Image();
+  test.onload=function(){img.src=`images/cover_${String(idx).padStart(2,"0")}.jpg`;img.style.display="block";fb.style.display="none"};
+  test.src=`images/cover_${String(idx).padStart(2,"0")}.jpg`;
+  
+  setTimeout(()=>{
+    document.getElementById("albumName").textContent=a.name;
+    document.getElementById("artistName").textContent=a.artist;
+    document.getElementById("counter").textContent=`${currentIdx+1} / ${ALBUMS.length}`;
+    document.getElementById("info").style.opacity="1";
+  },350);
 }
 
-function nextAlbum() { showAlbum(currentIdx + 1); }
-function prevAlbum() { showAlbum(currentIdx - 1); }
-
-function togglePlay() {
-  isPlaying = !isPlaying;
-  document.getElementById('vinyl').classList.toggle('playing', isPlaying);
-  document.getElementById('playIcon').textContent = isPlaying ? '⏸' : '▶';
+function nextAlbum(){showAlbum(currentIdx+1)}
+function prevAlbum(){showAlbum(currentIdx-1)}
+function togglePlay(){
+  isPlaying=!isPlaying;
+  document.getElementById("vinyl").classList.toggle("playing",isPlaying);
+  document.getElementById("playIcon").textContent=isPlaying?"⏸":"▶";
 }
 
-// Keyboard navigation
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'ArrowLeft') prevAlbum();
-  if (e.key === 'ArrowRight') nextAlbum();
-  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft")prevAlbum();
+  if(e.key==="ArrowRight")nextAlbum();
+  if(e.key===" "){e.preventDefault();togglePlay()}
 });
 
-// Init
-const vinyl = document.getElementById('vinyl');
-const wrapper = document.querySelector('.vinyl-wrapper');
-for (let i = 1; i <= 20; i++) {
-  const groove = document.createElement('div');
-  groove.className = 'groove';
-  const s = 40 + i * 12;
-  groove.style.width = s + 'px';
-  groove.style.height = s + 'px';
-  groove.style.left = (160 - s/2) + 'px';
-  groove.style.top = (160 - s/2) + 'px';
-  vinyl.appendChild(groove);
+const v=document.getElementById("vinyl");
+for(let i=1;i<=20;i++){
+  const g=document.createElement("div");g.className="groove";
+  const s=40+i*12;g.style.width=s+"px";g.style.height=s+"px";
+  g.style.left=(160-s/2)+"px";g.style.top=(160-s/2)+"px";
+  v.appendChild(g);
 }
 
-// Start with random album
-showAlbum(Math.floor(Math.random() * ALBUMS.length));
+showAlbum(Math.floor(Math.random()*ALBUMS.length));
 </script>
 </body>
 </html>
