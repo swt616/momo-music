@@ -19,9 +19,9 @@
     justify-content: center;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     overflow: hidden;
+    user-select: none;
   }
 
-  /* Ambient background glow */
   .ambient {
     position: fixed;
     inset: 0;
@@ -29,32 +29,77 @@
     pointer-events: none;
   }
 
-  /* Main scene */
   .scene {
     position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 40px;
+    gap: 36px;
   }
 
-  /* Vinyl container */
+  /* Arrow buttons */
+  .arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    color: #555;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .arrow::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: all 0.4s ease;
+  }
+  .arrow:hover {
+    color: #ccc;
+    border-color: #555;
+  }
+  .arrow:hover::after {
+    border-color: #333;
+    inset: -8px;
+  }
+  .arrow:active {
+    transform: scale(0.92);
+    transition: transform 0.1s;
+  }
+
+  /* Center column */
+  .center-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  /* Vinyl */
   .vinyl-wrapper {
     position: relative;
     width: 320px;
     height: 320px;
   }
 
-  /* The vinyl disc */
   .vinyl {
     position: absolute;
     inset: 0;
     border-radius: 50%;
     background: conic-gradient(
       from 0deg,
-      #1a1a1a 0deg 2deg, #252525 2deg 4deg, #1a1a1a 4deg 6deg, #252525 6deg 8deg,
-      #1a1a1a 8deg 10deg, #252525 10deg 12deg, #1a1a1a 12deg 14deg, #252525 14deg 16deg,
-      #1a1a1a 16deg 18deg, #252525 18deg 20deg, #1a1a1a 20deg 22deg, #252525 22deg 24deg,
+      #1a1a1a 0deg 2deg, #252525 2deg 4deg, #1a1a1a 4deg 6deg,
+      #252525 6deg 8deg, #1a1a1a 8deg 10deg, #252525 10deg 12deg,
+      #1a1a1a 12deg 14deg, #252525 14deg 16deg, #1a1a1a 16deg 18deg,
+      #252525 18deg 20deg, #1a1a1a 20deg 22deg, #252525 22deg 24deg,
       #1a1a1a 24deg 26deg, #252525 26deg 28deg, #1a1a1a 28deg 30deg
     );
     background-size: 100% 100%;
@@ -62,8 +107,7 @@
       0 0 60px rgba(0,0,0,0.8),
       0 0 120px rgba(0,0,0,0.3),
       inset 0 0 40px rgba(0,0,0,0.5);
-    animation: spin 8s linear infinite;
-    animation-play-state: paused;
+    animation: spin 8s linear infinite paused;
   }
   .vinyl.playing { animation-play-state: running; }
 
@@ -71,7 +115,6 @@
     to { transform: rotate(360deg); }
   }
 
-  /* Groove rings */
   .groove {
     position: absolute;
     border-radius: 50%;
@@ -79,7 +122,7 @@
     pointer-events: none;
   }
 
-  /* Album cover in center */
+  /* Cover */
   .cover {
     position: absolute;
     top: 50%; left: 50%;
@@ -89,11 +132,13 @@
     border-radius: 50%;
     overflow: hidden;
     z-index: 2;
+    background: #1a1a1a;
     box-shadow:
       0 0 0 3px #1a1a1a,
       0 0 0 6px #111,
       0 0 0 8px #1a1a1a,
       0 0 30px rgba(0,0,0,0.6);
+    transition: opacity 0.5s ease;
   }
   .cover img {
     width: 100%;
@@ -102,7 +147,27 @@
     display: block;
   }
 
-  /* Center hole */
+  /* Fallback cover — generated when image fails */
+  .cover-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 11px;
+    color: #555;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 10px;
+    line-height: 1.4;
+  }
+  .cover-fallback .icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+    opacity: 0.5;
+  }
+
   .hole {
     position: absolute;
     top: 50%; left: 50%;
@@ -115,7 +180,6 @@
     box-shadow: 0 0 0 2px #222;
   }
 
-  /* Reflection/shine */
   .shine {
     position: absolute;
     inset: 0;
@@ -131,11 +195,11 @@
     z-index: 4;
   }
 
-  /* Info below vinyl */
+  /* Info */
   .info {
     text-align: center;
     color: #888;
-    transition: opacity 0.5s;
+    transition: opacity 0.4s ease;
   }
   .info .album-name {
     font-size: 16px;
@@ -158,13 +222,13 @@
 
   /* Play button */
   .play-btn {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 2px solid #444;
+    border: 1px solid #333;
     background: transparent;
-    color: #888;
-    font-size: 18px;
+    color: #666;
+    font-size: 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -174,23 +238,15 @@
   .play-btn:hover {
     border-color: #e8b44f;
     color: #e8b44f;
-    box-shadow: 0 0 20px rgba(232,180,79,0.15);
+    box-shadow: 0 0 16px rgba(232,180,79,0.12);
   }
 
-  /* Refresh hint */
-  .refresh-hint {
-    position: fixed;
-    bottom: 24px;
+  /* Counter */
+  .counter {
+    font-size: 10px;
     color: #333;
-    font-size: 11px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: color 0.3s;
-    border: none;
-    background: none;
-    font-family: inherit;
+    letter-spacing: 2px;
   }
-  .refresh-hint:hover { color: #666; }
 </style>
 </head>
 <body>
@@ -198,206 +254,212 @@
 <div class="ambient"></div>
 
 <div class="scene">
-  <div class="vinyl-wrapper">
-    <div class="vinyl playing" id="vinyl">
-      <!-- Groove rings -->
+  <button class="arrow" id="prevBtn" onclick="prevAlbum()" title="上一张">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+
+  <div class="center-col">
+    <div class="vinyl-wrapper">
+      <div class="vinyl playing" id="vinyl"></div>
+      <div class="cover" id="cover">
+        <img id="coverImg" src="" alt="" style="display:none">
+        <div class="cover-fallback" id="coverFallback" style="display:none">
+          <span class="icon">💿</span>
+          <span id="fallbackText"></span>
+        </div>
+      </div>
+      <div class="hole"></div>
+      <div class="shine"></div>
     </div>
-    <div class="cover" id="cover">
-      <img id="coverImg" src="" alt="">
+
+    <div class="info" id="info">
+      <div class="album-name" id="albumName"></div>
+      <div class="artist-name" id="artistName"></div>
+      <div class="label">今日唱片</div>
     </div>
-    <div class="hole"></div>
-    <div class="shine"></div>
+
+    <button class="play-btn" id="playBtn" onclick="togglePlay()">
+      <span id="playIcon">⏸</span>
+    </button>
+
+    <div class="counter" id="counter"></div>
   </div>
 
-  <div class="info" id="info">
-    <div class="album-name" id="albumName"></div>
-    <div class="artist-name" id="artistName"></div>
-    <div class="label">今日唱片</div>
-  </div>
-
-  <button class="play-btn" id="playBtn" onclick="togglePlay()">
-    <span id="playIcon">⏸</span>
+  <button class="arrow" id="nextBtn" onclick="nextAlbum()" title="下一张">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
   </button>
 </div>
 
-<button class="refresh-hint" onclick="pickRandom()">换一张唱片</button>
-
 <script>
-// Classic album covers — curated collection
-const ALBUMS = [
-  {
-    name: 'The Dark Side of the Moon',
-    artist: 'Pink Floyd',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png',
-  },
-  {
-    name: 'Abbey Road',
-    artist: 'The Beatles',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg',
-  },
-  {
-    name: 'Nevermind',
-    artist: 'Nirvana',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/b/b7/NirvanaNevermindalbumcover.jpg',
-  },
-  {
-    name: 'Kind of Blue',
-    artist: 'Miles Davis',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/9/9c/MilesDavisKindofBlue.jpg',
-  },
-  {
-    name: 'Random Access Memories',
-    artist: 'Daft Punk',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/2/26/Daft_Punk_-_Random_Access_Memories.png',
-  },
-  {
-    name: 'Rumours',
-    artist: 'Fleetwood Mac',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/f/fb/FMacRumours.PNG',
-  },
-  {
-    name: 'OK Computer',
-    artist: 'Radiohead',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/b/ba/Radioheadokcomputer.png',
-  },
-  {
-    name: 'Thriller',
-    artist: 'Michael Jackson',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png',
-  },
-  {
-    name: 'Unknown Pleasures',
-    artist: 'Joy Division',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/7/7e/Joy_Division_-_Unknown_Pleasures.jpg',
-  },
-  {
-    name: 'In the Court of the Crimson King',
-    artist: 'King Crimson',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/8/84/In_the_Court_of_the_Crimson_King_-_40th_Anniversary_Box_Set_-_Front_cover.jpeg',
-  },
-  {
-    name: 'Blue Train',
-    artist: 'John Coltrane',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/4/4e/John_Coltrane_-_Blue_Train.jpg',
-  },
-  {
-    name: 'A Love Supreme',
-    artist: 'John Coltrane',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/3/3f/John_Coltrane_-_A_Love_Supreme.jpg',
-  },
-  {
-    name: 'The Wall',
-    artist: 'Pink Floyd',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/1/13/PinkFloydWallCoverOriginalNoText.jpg',
-  },
-  {
-    name: '(What\'s the Story) Morning Glory?',
-    artist: 'Oasis',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/4/43/Oasis_-_%28What%27s_the_Story%29_Morning_Glory%3F.jpg',
-  },
-  {
-    name: 'Is This It',
-    artist: 'The Strokes',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/6/64/Is_This_It_cover.jpg',
-  },
-  {
-    name: 'The Bends',
-    artist: 'Radiohead',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/5/55/Radioheadthebends.png',
-  },
-  {
-    name: 'Back to Black',
-    artist: 'Amy Winehouse',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/6/67/Amy_Winehouse_-_Back_to_Black.png',
-  },
-  {
-    name: 'Led Zeppelin IV',
-    artist: 'Led Zeppelin',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/2/26/Led_Zeppelin_-_Led_Zeppelin_IV.jpg',
-  },
-  {
-    name: 'London Calling',
-    artist: 'The Clash',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/0/00/TheClashLondonCalling.jpg',
-  },
-  {
-    name: 'Hounds of Love',
-    artist: 'Kate Bush',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/7/7f/Kate_Bush_-_Hounds_of_Love.png',
-  },
-  {
-    name: 'Music Has the Right to Children',
-    artist: 'Boards of Canada',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/4/42/Boards_of_Canada_Music_Has_the_Right_to_Children.jpg',
-  },
-  {
-    name: 'Loveless',
-    artist: 'My Bloody Valentine',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/6/60/My_Bloody_Valentine_-_Loveless.png',
-  },
-  {
-    name: 'Dummy',
-    artist: 'Portishead',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/3/38/Portishead_-_Dummy.png',
-  },
-  {
-    name: 'Souvlaki',
-    artist: 'Slowdive',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/9/9d/Slowdive_-_Souvlaki.jpg',
-  },
-  {
-    name: 'Selected Ambient Works 85-92',
-    artist: 'Aphex Twin',
-    cover: 'https://upload.wikimedia.org/wikipedia/en/1/1c/Aphex_Twin_-_Selected_Ambient_Works_85-92.png',
-  },
+// Album data — each has a reliable cover URL + fallback colors
+const PALETTES = [
+  ['#2d1b4e', '#1a3a5c'], ['#1b3a1b', '#2d2d1b'], ['#4a1a1a', '#2d1b2d'],
+  ['#1a2d3a', '#1b2d1b'], ['#3a1a2d', '#1b1b4a'], ['#2d3a1a', '#4a2d1b'],
+  ['#1b4a4a', '#2d1a2d'], ['#3a3a1a', '#1b3a4a'], ['#4a1b3a', '#1a2d1b'],
+  ['#1b1b3a', '#3a2d1a'], ['#2d1a3a', '#1b4a2d'], ['#4a2d2d', '#2d1b1b'],
+  ['#1a3a3a', '#3a1a1a'], ['#2d2d4a', '#1a2d4a'], ['#3a4a1b', '#2d1a4a'],
+  ['#1b2d4a', '#4a1b2d'], ['#3a1b2d', '#1b3a2d'], ['#2d4a2d', '#3a1b3a'],
+  ['#4a3a1b', '#2d1b3a'], ['#1a4a3a', '#3a1b1b'], ['#2d1b4e', '#1a2d2d'],
+  ['#3a2d2d', '#1b1b3a'], ['#1b3a1b', '#4a1a3a'], ['#2d3a3a', '#3a1b4a'],
+  ['#4a1b1b', '#1b2d3a'],
 ];
 
+const ALBUMS = [
+  { name:'The Dark Side of the Moon', artist:'Pink Floyd',
+    cover:'https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png' },
+  { name:'Abbey Road', artist:'The Beatles',
+    cover:'https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg' },
+  { name:'Nevermind', artist:'Nirvana',
+    cover:'https://upload.wikimedia.org/wikipedia/en/b/b7/NirvanaNevermindalbumcover.jpg' },
+  { name:'Kind of Blue', artist:'Miles Davis',
+    cover:'https://upload.wikimedia.org/wikipedia/en/9/9c/MilesDavisKindofBlue.jpg' },
+  { name:'Random Access Memories', artist:'Daft Punk',
+    cover:'https://upload.wikimedia.org/wikipedia/en/2/26/Daft_Punk_-_Random_Access_Memories.png' },
+  { name:'Rumours', artist:'Fleetwood Mac',
+    cover:'https://upload.wikimedia.org/wikipedia/en/f/fb/FMacRumours.PNG' },
+  { name:'OK Computer', artist:'Radiohead',
+    cover:'https://upload.wikimedia.org/wikipedia/en/b/ba/Radioheadokcomputer.png' },
+  { name:'Thriller', artist:'Michael Jackson',
+    cover:'https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png' },
+  { name:'Unknown Pleasures', artist:'Joy Division',
+    cover:'https://upload.wikimedia.org/wikipedia/en/7/7e/Joy_Division_-_Unknown_Pleasures.jpg' },
+  { name:'In the Court of the Crimson King', artist:'King Crimson',
+    cover:'https://upload.wikimedia.org/wikipedia/en/8/84/In_the_Court_of_the_Crimson_King_-_40th_Anniversary_Box_Set_-_Front_cover.jpeg' },
+  { name:'Blue Train', artist:'John Coltrane',
+    cover:'https://upload.wikimedia.org/wikipedia/en/4/4e/John_Coltrane_-_Blue_Train.jpg' },
+  { name:'A Love Supreme', artist:'John Coltrane',
+    cover:'https://upload.wikimedia.org/wikipedia/en/3/3f/John_Coltrane_-_A_Love_Supreme.jpg' },
+  { name:'The Wall', artist:'Pink Floyd',
+    cover:'https://upload.wikimedia.org/wikipedia/en/1/13/PinkFloydWallCoverOriginalNoText.jpg' },
+  { name:'(What\'s the Story) Morning Glory?', artist:'Oasis',
+    cover:'https://upload.wikimedia.org/wikipedia/en/4/43/Oasis_-_%28What%27s_the_Story%29_Morning_Glory%3F.jpg' },
+  { name:'Is This It', artist:'The Strokes',
+    cover:'https://upload.wikimedia.org/wikipedia/en/6/64/Is_This_It_cover.jpg' },
+  { name:'The Bends', artist:'Radiohead',
+    cover:'https://upload.wikimedia.org/wikipedia/en/5/55/Radioheadthebends.png' },
+  { name:'Back to Black', artist:'Amy Winehouse',
+    cover:'https://upload.wikimedia.org/wikipedia/en/6/67/Amy_Winehouse_-_Back_to_Black.png' },
+  { name:'Led Zeppelin IV', artist:'Led Zeppelin',
+    cover:'https://upload.wikimedia.org/wikipedia/en/2/26/Led_Zeppelin_-_Led_Zeppelin_IV.jpg' },
+  { name:'London Calling', artist:'The Clash',
+    cover:'https://upload.wikimedia.org/wikipedia/en/0/00/TheClashLondonCalling.jpg' },
+  { name:'Hounds of Love', artist:'Kate Bush',
+    cover:'https://upload.wikimedia.org/wikipedia/en/7/7f/Kate_Bush_-_Hounds_of_Love.png' },
+  { name:'Music Has the Right to Children', artist:'Boards of Canada',
+    cover:'https://upload.wikimedia.org/wikipedia/en/4/42/Boards_of_Canada_Music_Has_the_Right_to_Children.jpg' },
+  { name:'Loveless', artist:'My Bloody Valentine',
+    cover:'https://upload.wikimedia.org/wikipedia/en/6/60/My_Bloody_Valentine_-_Loveless.png' },
+  { name:'Dummy', artist:'Portishead',
+    cover:'https://upload.wikimedia.org/wikipedia/en/3/38/Portishead_-_Dummy.png' },
+  { name:'Souvlaki', artist:'Slowdive',
+    cover:'https://upload.wikimedia.org/wikipedia/en/9/9d/Slowdive_-_Souvlaki.jpg' },
+  { name:'Selected Ambient Works 85-92', artist:'Aphex Twin',
+    cover:'https://upload.wikimedia.org/wikipedia/en/1/1c/Aphex_Twin_-_Selected_Ambient_Works_85-92.png' },
+];
+
+let currentIdx = 0;
 let isPlaying = true;
 
-function pickRandom() {
-  const album = ALBUMS[Math.floor(Math.random() * ALBUMS.length)];
+function showAlbum(idx, direction) {
+  if (idx < 0) idx = ALBUMS.length - 1;
+  if (idx >= ALBUMS.length) idx = 0;
+  currentIdx = idx;
+  const album = ALBUMS[idx];
+  const palette = PALETTES[idx % PALETTES.length];
 
-  // Fade out
   const info = document.getElementById('info');
+  const img = document.getElementById('coverImg');
+  const fallback = document.getElementById('coverFallback');
+  const fallbackText = document.getElementById('fallbackText');
+  const counter = document.getElementById('counter');
+
+  // Fade info
   info.style.opacity = '0';
 
+  // Set up cover
+  let loaded = false;
+  img.style.display = 'none';
+  fallback.style.display = 'none';
+
+  // Show fallback immediately
+  fallback.style.background = `linear-gradient(135deg, ${palette[0]}, ${palette[1]})`;
+  fallbackText.textContent = album.name.split(' ').slice(0, 3).join('\n');
+  fallback.style.display = 'flex';
+
+  // Try loading the image
+  const testImg = new Image();
+  testImg.onload = function() {
+    if (loaded) return;
+    loaded = true;
+    img.src = album.cover;
+    img.style.display = 'block';
+    fallback.style.display = 'none';
+  };
+  testImg.onerror = function() {
+    // Fallback stays visible — that's fine
+  };
+  testImg.src = album.cover;
+
+  // Update text
   setTimeout(() => {
-    document.getElementById('coverImg').src = album.cover;
     document.getElementById('albumName').textContent = album.name;
     document.getElementById('artistName').textContent = album.artist;
+    document.getElementById('counter').textContent = `${currentIdx + 1} / ${ALBUMS.length}`;
     info.style.opacity = '1';
-  }, 400);
+  }, 350);
+
+  // Animate vinyl on switch
+  const vinyl = document.getElementById('vinyl');
+  vinyl.style.transition = 'none';
+  vinyl.style.transform = 'rotate(0deg)';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      vinyl.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+      vinyl.style.transform = 'rotate(360deg)';
+      setTimeout(() => {
+        vinyl.style.transition = 'none';
+        vinyl.style.transform = 'rotate(0deg)';
+      }, 800);
+    });
+  });
 }
+
+function nextAlbum() { showAlbum(currentIdx + 1); }
+function prevAlbum() { showAlbum(currentIdx - 1); }
 
 function togglePlay() {
-  const vinyl = document.getElementById('vinyl');
-  const icon = document.getElementById('playIcon');
   isPlaying = !isPlaying;
-  vinyl.classList.toggle('playing', isPlaying);
-  icon.textContent = isPlaying ? '⏸' : '▶';
+  document.getElementById('vinyl').classList.toggle('playing', isPlaying);
+  document.getElementById('playIcon').textContent = isPlaying ? '⏸' : '▶';
 }
 
-// Initial pick
-pickRandom();
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft') prevAlbum();
+  if (e.key === 'ArrowRight') nextAlbum();
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+});
 
-// Add groove rings dynamically
+// Init
 const vinyl = document.getElementById('vinyl');
 const wrapper = document.querySelector('.vinyl-wrapper');
 for (let i = 1; i <= 20; i++) {
   const groove = document.createElement('div');
   groove.className = 'groove';
-  const size = 40 + i * 12;
-  groove.style.width = size + 'px';
-  groove.style.height = size + 'px';
-  groove.style.left = (160 - size/2) + 'px';
-  groove.style.top = (160 - size/2) + 'px';
+  const s = 40 + i * 12;
+  groove.style.width = s + 'px';
+  groove.style.height = s + 'px';
+  groove.style.left = (160 - s/2) + 'px';
+  groove.style.top = (160 - s/2) + 'px';
   vinyl.appendChild(groove);
 }
 
-// Handle image load errors — pick another
-document.getElementById('coverImg').onerror = function() {
-  setTimeout(pickRandom, 500);
-};
+// Start with random album
+showAlbum(Math.floor(Math.random() * ALBUMS.length));
 </script>
 </body>
 </html>
